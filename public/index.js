@@ -16,8 +16,27 @@ function stockColor(stock) {
     }
 }
 
-function highestStockValue(stock) {
-    
+//
+function getHighestValue(stockData) {
+  let highestValues = {};
+  
+  stockData.forEach(stock => {
+    let symbol = stock.meta.symbol;
+    let maxHigh = 0;
+
+    stock.values.forEach(day => {
+      let high = parseFloat(day.high)
+      if (high > maxHigh) {
+        maxHigh = high;
+      }
+    });
+
+    highestValues[symbol] = maxHigh.toFixed(2);
+
+  });
+
+  return highestValues
+
 }
 
 async function main() {
@@ -43,7 +62,6 @@ async function main() {
   stocks.forEach(stock => stock.values.reverse());
 
   // STOCK PRICE OVER TIME - CHART
-
   new Chart(timeChartCanvas.getContext("2d"), {
     type: "line",
     data: {
@@ -58,20 +76,32 @@ async function main() {
   });
 
   // HIGHEST STOCK PRICE - CHART
-  
   new Chart(highestPriceChartCanvas.getContext("2d"), {
     type: "bar",
     data: {
       labels: stocks.map(stock => stock.meta.symbol),
-      datasets: stocks.map(stock => ({
-        label: stock.meta.symbol,
-        data: stock.values.map(value => parseFloat(value.high)),
-        backgroundColor: stockColor(stock.meta.symbol),
-        borderColor: stockColor(stock.meta.symbol)
-      })),
+      datasets: [{
+        label: 'Highest',
+        data: getHighestValue(stocks),
+        backgroundColor: stocks.map(stock => (stockColor(stock.meta.symbol))),
+        borderColor: stocks.map(stock => (stockColor(stock.meta.symbol))),
+      }]
     },
   });
 
+  // AVERAGE STOCK PRICE - CHART
+  // new Chart(averagePriceChartCanvas.getContext("2d"), {
+  //   type: "pie",
+  //   data: {
+  //     labels: stocks.map(stock => stock.meta.symbol),
+  //     datasets: [{
+  //       label: 'Highest',
+  //       data: getHighestValue(stocks),
+  //       backgroundColor: stocks.map(stock => (stockColor(stock.meta.symbol))),
+  //       borderColor: stocks.map(stock => (stockColor(stock.meta.symbol))),
+  //     }]
+  //   },
+  // });
 }
 
 main();
